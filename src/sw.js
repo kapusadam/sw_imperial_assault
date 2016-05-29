@@ -29,25 +29,35 @@ angular.module('sw', ['ui.router'])
         {
             socket.emit('disconnect', myConfig.player.id);
         }
-        window.onbeforeunload = function(){ trackClose(); }
+        window.onbeforeunload = function(){ trackClose(); };
         
         $urlRouterProvider.otherwise('/home');
 
         $stateProvider
-
-        // HOME STATES AND NESTED VIEWS ========================================
             .state('home', {
                 url: '/home',
                 templateUrl: 'pages/home/home.html',
                 controller: 'HomeController'
             })
-
-            // ABOUT PAGE AND MULTIPLE NAMED VIEWS =================================
             .state('mission', {
                 url: '/mission',
                 templateUrl: 'pages/mission/mission.html'
+            })
+            
+            .state('campaign', {
+                url: '/campaign',
+                templateUrl: 'pages/campaign/campaign.html',
+                abstract: true
+            })
+
+            .state('campaign.start', {
+                url: '/campaign-start',
+                templateUrl: 'pages/campaign/campaign-start.html',
+                controller: 'CampaignController'
+            })
+            .state('campaign.game', {
+                url: '/campaign-game:missionId',
+                templateUrl: 'pages/campaign/campaign-game.html',
+                controller: 'CampaignController'
             });
-
-
-
-    })
+    });
