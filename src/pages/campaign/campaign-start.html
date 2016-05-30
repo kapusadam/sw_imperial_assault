@@ -1,3 +1,7 @@
-<div>
-    start
+<div >
+    <h1 ng-if="!hero">Choose</h1>
+    <h1 ng-if="hero">Chosen hero: {{hero.name}}</h1>
+    <div ng-repeat="hero in availableHeroCards" ng-click="chooseHero(hero.id)">
+        {{hero.name}}
+    </div>
 </div>

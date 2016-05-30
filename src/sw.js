@@ -5,6 +5,7 @@ angular.module('sw', ['ui.router'])
         "player":null
     })
     .config(function(myConfig, $stateProvider, $urlRouterProvider){
+        console.log('io conencting');
         var socket = io();
         myConfig.socket = socket;
 
@@ -20,10 +21,10 @@ angular.module('sw', ['ui.router'])
             }
         });
 
-        socket.on("ok", function(player){
-            console.log('OK!!!');
-
-        });
+        // socket.on("ok", function(player){
+        //     console.log('OK!!!');
+        //
+        // });
 
         function trackClose()
         {

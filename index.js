@@ -3,39 +3,44 @@ var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var _ = require('lodash');
-
+var heroCards = require('./data/heroes.json');
 //var hero = require('model/Hero');
 
 app.use('/', express.static(__dirname + '/'));
 
 var players = [];
-var socket;
 
-io.on('connection', function(sock){
-    socket = sock;
 
-    disconnect_on();
 
-    console.log("players length:",players.length)
+io.on('connection', function(socket) {
 
-    ok_emit();
-    
+
+    init();
+
+    socket.on('disconnect', function(){
+        console.log('user disconnected, players remaining:',players.length);
+    });
+
+    console.log("the heroCards length:",heroCards.length)
+
+    socket.emit('availableHeroCards', heroCards);
+    socket.on('chooseHeroCard', function(heroId){
+        console.log('heroId ',heroId);
+        var hero = _.remove(heroCards, function(hero) {
+            return hero.id === heroId;
+        });
+        console.log("heroCards NEW length:",heroCards.length)
+        // socket.emit('heroGained', {hero: hero, heroCards: heroCards});
+        socket.emit('availableHeroCards', heroCards);
+    });
 });
 
 http.listen(3000, function(){
     console.log('listening on *:3000');
 });
 
-var disconnect_on = function () {
-    socket.on('disconnect', function(){
-        console.log('user disconnected, players remaining:',players.length);
-    });
+var init = function () {
+
 };
 
-var ok_emit = function(){
-
-    socket.emit('ok', function(msg){
-        console.log("ok:",msg)
-    });
-};
 

@@ -1,3 +1,11 @@
-/**
- * Created by Adam on 5/29/2016.
- */
+angular.module('sw').service('campaignService',  function (myConfig) {
+
+    this.getAvailableHeroCards = function() {
+        return new Promise(function(resolve, reject) {
+            myConfig.socket.on('availableHeroCards', function(heroCards){
+                resolve(heroCards);
+            });
+        });
+    };
+
+});
