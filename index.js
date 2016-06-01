@@ -9,22 +9,47 @@ var heroCards = require('./data/heroes.json');
 app.use('/', express.static(__dirname + '/'));
 
 var players = [];
-
+var playerToCome = 0;
 
 
 io.on('connection', function(socket) {
 
 
-    init();
+    init(socket);
 
-    socket.on('disconnect', function(){
-        console.log('user disconnected, players remaining:',players.length);
-    });
+    // socket.on('disconnect', function(){
+    //     console.log('user disconnected, players remaining:',players.length);
+    // });
 
-    console.log("the heroCards length:",heroCards.length)
-
+    console.log("players, heroCards length:",players.length, heroCards.length)
+if(players.length < 3) {
+    console.log('nincs meg meg mindenki');
+   // return;
+}
     socket.emit('availableHeroCards', heroCards);
-    socket.on('chooseHeroCard', function(heroId){
+
+    
+    for(var i = 1; i<2;++i) {
+        chooseHeroCard(socket,i);
+    }
+    console.log('Mindenki valaszott');
+});
+
+http.listen(3000, function(){
+    console.log('listening on *:3000');
+});
+
+var init = function (socket) {
+    var player = {id:players.length+1,xp:0,turn: players.length === 0};
+    players.push(player);
+    console.log(player);
+    socket.emit('playerInfo', player);
+};
+
+
+var chooseHeroCard = function(socket,postfix) {
+    
+    socket.on('chooseHeroCard_' + postfix, function(heroId) {
         console.log('heroId ',heroId);
         var hero = _.remove(heroCards, function(hero) {
             return hero.id === heroId;
@@ -33,14 +58,6 @@ io.on('connection', function(socket) {
         // socket.emit('heroGained', {hero: hero, heroCards: heroCards});
         socket.emit('availableHeroCards', heroCards);
     });
-});
-
-http.listen(3000, function(){
-    console.log('listening on *:3000');
-});
-
-var init = function () {
-
-};
+}
 
 
