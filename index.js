@@ -9,30 +9,52 @@ var heroCards = require('./data/heroes.json');
 app.use('/', express.static(__dirname + '/'));
 
 var players = [];
+var gameType;
 var playerToCome = 0;
 
 
 io.on('connection', function(socket) {
 
+    socket.on('gameType', function(type){
+        gameType = type;
+        console.log(type);
 
-    init(socket);
+        init(socket);
 
-    // socket.on('disconnect', function(){
-    //     console.log('user disconnected, players remaining:',players.length);
-    // });
 
-    console.log("players, heroCards length:",players.length, heroCards.length)
-if(players.length < 3) {
-    console.log('nincs meg meg mindenki');
-   // return;
-}
-    socket.emit('availableHeroCards', heroCards);
+        console.log("players, heroCards length:",players.length, heroCards.length)
+        if(players.length < 3) {
+            console.log('nincs meg meg mindenki');
+            // return;
+        }
+        socket.emit('availableHeroCards', heroCards);
 
+
+        for(var i = 1; i<2;++i) {
+            chooseHeroCard(socket,i);
+        }
+
+    });
     
-    for(var i = 1; i<2;++i) {
-        chooseHeroCard(socket,i);
-    }
-    console.log('Mindenki valaszott');
+
+
+
+    socket.on('disconnect', function(playerId){
+        console.log('playerId', playerId);
+        if(playerId) {
+            var disconnectedPlayer = _.remove(players, function(player) {
+                return player.id === playerId;
+            });
+            if (disconnectedPlayer.hero) {
+                var disconnectedPlayer = _.remove(heroCards, function(heroCard) {
+                    return heroCard === disconnectedPlayer.hero.id;
+                });
+            }
+        }
+        console.log('user disconnected, players remaining:',players.length, heroCards.length);
+    });
+
+
 });
 
 http.listen(3000, function(){
@@ -54,9 +76,23 @@ var chooseHeroCard = function(socket,postfix) {
         var hero = _.remove(heroCards, function(hero) {
             return hero.id === heroId;
         });
-        console.log("heroCards NEW length:",heroCards.length)
-        // socket.emit('heroGained', {hero: hero, heroCards: heroCards});
-        socket.emit('availableHeroCards', heroCards);
+
+
+        if(hero) {
+            console.log("heroCards NEW length:",heroCards.length);
+            _.find(players, function(player) {
+                if (player.id === postfix) {
+                    player.hero = hero;
+                }
+            })
+            // socket.emit('heroGained', {hero: hero, heroCards: heroCards});
+            io.sockets.emit('availableHeroCards', heroCards)
+        } else {
+            console.log('PECH MAR FOGLALT'); //TODO lekezelni majd cliens oldalt
+            chooseHeroCard(socket,postfix);
+        }
+
+
     });
 }
 

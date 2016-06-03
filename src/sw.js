@@ -21,14 +21,10 @@ angular.module('sw', ['ui.router'])
             }
         });
 
-        // socket.on("ok", function(player){
-        //     console.log('OK!!!');
-        //
-        // });
-
         function trackClose()
         {
-            socket.emit('disconnect', myConfig.player.id);
+            debugger;
+            socket.emit('disconnect', myConfig.player ? myConfig.player.id : null);
         }
         window.onbeforeunload = function(){ trackClose(); };
         

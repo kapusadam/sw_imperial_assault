@@ -2,7 +2,7 @@
 
 angular.module('sw')
     .controller('CampaignController',  function($scope, $state, campaignService, myConfig) {
-
+        myConfig.socket.emit('gameType', 'campaign');
         console.log('CampaignController');
         myConfig.socket.on('playerInfo', function(player) {
             myConfig.player = player;
@@ -45,7 +45,8 @@ angular.module('sw')
                 //alert('Nem te jossz');
                // return;
             }
-var emitString = 'chooseHeroCard_'+myConfig.player.id;
+            
+            var emitString = 'chooseHeroCard_'+myConfig.player.id;
             console.log(emitString);
             myConfig.socket.emit(emitString, heroId);
 
