@@ -11,49 +11,29 @@ app.use('/', express.static(__dirname + '/'));
 var players = [];
 var gameType;
 var playerToCome = 0;
-
+var allClients = [];
 
 io.on('connection', function(socket) {
-
+    allClients.push(socket);
     socket.on('gameType', function(type){
         gameType = type;
         console.log(type);
-
         init(socket);
-
-
-        console.log("players, heroCards length:",players.length, heroCards.length)
-        if(players.length < 3) {
-            console.log('nincs meg meg mindenki');
-            // return;
-        }
+        console.log("players, heroCards length:",players.length, heroCards.length);
         socket.emit('availableHeroCards', heroCards);
-
-
-        for(var i = 1; i<2;++i) {
-            chooseHeroCard(socket,i);
-        }
-
-    });
-    
-
-
-
-    socket.on('disconnect', function(playerId){
-        console.log('playerId', playerId);
-        if(playerId) {
-            var disconnectedPlayer = _.remove(players, function(player) {
-                return player.id === playerId;
-            });
-            if (disconnectedPlayer.hero) {
-                var disconnectedPlayer = _.remove(heroCards, function(heroCard) {
-                    return heroCard === disconnectedPlayer.hero.id;
-                });
-            }
-        }
-        console.log('user disconnected, players remaining:',players.length, heroCards.length);
+        chooseHeroCard(socket);
     });
 
+    socket.on('disconnect', function(){
+        var index = allClients.indexOf(socket);
+        allClients.splice(index, 1);
+        var disconnectedPlayer = _.remove(players, 'id', socket.id)[0];
+        if (disconnectedPlayer.hero) {
+            heroCards.push(disconnectedPlayer.hero);
+            socket.broadcast.emit('availableHeroCards', heroCards)
+        }
+        console.log('user disconnected, players length, hero cards length:',players.length, heroCards.length);
+    });
 
 });
 
@@ -62,38 +42,31 @@ http.listen(3000, function(){
 });
 
 var init = function (socket) {
-    var player = {id:players.length+1,xp:0,turn: players.length === 0};
+    var player = {id:socket.id, xp:0, turn: players.length === 0};
     players.push(player);
     console.log(player);
     socket.emit('playerInfo', player);
 };
 
-
-var chooseHeroCard = function(socket,postfix) {
+var chooseHeroCard = function(socket) {
     
-    socket.on('chooseHeroCard_' + postfix, function(heroId) {
-        console.log('heroId ',heroId);
+    socket.on('chooseHeroCard', function(result) {
+        console.log('heroId ',result.heroId);
         var hero = _.remove(heroCards, function(hero) {
-            return hero.id === heroId;
+            return hero.id === result.heroId;
         });
 
-
-        if(hero) {
+        if(hero.length !== 0) {
             console.log("heroCards NEW length:",heroCards.length);
             _.find(players, function(player) {
-                if (player.id === postfix) {
-                    player.hero = hero;
+                if (player.id === result.playerId) {
+                    player.hero = hero[0];
                 }
             })
-            // socket.emit('heroGained', {hero: hero, heroCards: heroCards});
             io.sockets.emit('availableHeroCards', heroCards)
         } else {
             console.log('PECH MAR FOGLALT'); //TODO lekezelni majd cliens oldalt
             chooseHeroCard(socket,postfix);
         }
-
-
     });
-}
-
-
+};

@@ -23,7 +23,7 @@ angular.module('sw', ['ui.router'])
 
         function trackClose()
         {
-            debugger;
+            //debugger;
             socket.emit('disconnect', myConfig.player ? myConfig.player.id : null);
         }
         window.onbeforeunload = function(){ trackClose(); };

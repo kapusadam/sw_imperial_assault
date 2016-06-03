@@ -11,7 +11,7 @@
     "bootstrap": "^3.3.6",
     "express": "^4.10.2",
     "lodash": "*",
-    "socket.io": "^1.4.6"
+    "socket.io": "*"
   },
   "devDependencies": {
     "gulp": "^3.9.1",

@@ -46,9 +46,9 @@ angular.module('sw')
                // return;
             }
             
-            var emitString = 'chooseHeroCard_'+myConfig.player.id;
+            var emitString = 'chooseHeroCard';
             console.log(emitString);
-            myConfig.socket.emit(emitString, heroId);
+            myConfig.socket.emit(emitString, {heroId: heroId, playerId: myConfig.player.id});
 
             $scope.hero = _.find($scope.availableHeroCards, function(hero) {
                 return hero.id === heroId;
