@@ -10,7 +10,7 @@
     "angular-ui-router": "^0.3.0",
     "bootstrap": "^3.3.6",
     "express": "^4.10.2",
-    "lodash": "^3.10.1",
+    "lodash": "*",
     "socket.io": "^1.4.6"
   },
   "devDependencies": {
